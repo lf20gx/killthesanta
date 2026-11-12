@@ -634,14 +634,29 @@ function saveLocal(entry) {
   try { localStorage.setItem(LS_KEY, JSON.stringify(top)); } catch (e) {}
   return { ranking: top, rank: top.indexOf(entry) + 1, offline: true };
 }
+const SB_URL = (window.SUPABASE_URL || '').replace(/\/$/, ''), SB_KEY = window.SUPABASE_ANON_KEY || '';
+const sbHead = { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY };
+async function sbTop() {
+  const r = await fetch(SB_URL + '/rest/v1/scores?select=name,score,time,cleared&order=score.desc,time.asc&limit=10', { headers: sbHead, cache: 'no-store' });
+  if (!r.ok) throw 0; return r.json();
+}
 async function fetchRanking() {
   try {
+    if (SB_URL && SB_KEY) return { ranking: await sbTop(), offline: false };
     const r = await fetch(API + '/api/ranking', { cache: 'no-store' });
     if (!r.ok) throw 0; return { ranking: (await r.json()).ranking, offline: false };
   } catch (e) { return { ranking: localRank(), offline: true }; }
 }
 async function postScore(entry) {
   try {
+    if (SB_URL && SB_KEY) {
+      const r = await fetch(SB_URL + '/rest/v1/scores', { method: 'POST', headers: { ...sbHead, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+        body: JSON.stringify({ name: entry.name, score: entry.score, time: entry.time, cleared: entry.cleared }) });
+      if (!r.ok) throw 0;
+      const ranking = await sbTop();
+      const i = ranking.findIndex((x) => x.name === entry.name && x.score === entry.score);
+      return { ranking, rank: i + 1, offline: false };
+    }
     const r = await fetch(API + '/api/score', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(entry) });
     if (!r.ok) throw 0; const j = await r.json(); return { ...j, offline: false };
   } catch (e) { return saveLocal(entry); }
