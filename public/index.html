@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0b1026">
+<title>Kill the Santa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="stage">
+  <canvas id="game" width="480" height="270"></canvas>
+
+  <div id="controls" class="hidden">
+    <div class="pad left">
+      <div class="btn" data-k="left">◀</div>
+      <div class="btn" data-k="right">▶</div>
+    </div>
+    <div class="pad right">
+      <div class="btn" data-k="shoot">발사</div>
+      <div class="btn" data-k="jump">점프</div>
+    </div>
+  </div>
+
+  <div id="title" class="overlay">
+    <div class="col">
+      <h1>KILL THE<br><span>SANTA</span></h1>
+      <p class="sub">보스의 방까지 살아남아 사악한 산타를 처치하라!</p>
+      <button id="startBtn" class="big">START</button>
+      <button id="fsBtn" class="small">전체화면 ⛶</button>
+      <p class="help">이동 ◀▶ / ← → · 점프 Z·Space · 발사 X·J</p>
+    </div>
+    <div class="col rankcol">
+      <h2>🏆 TOP 10</h2>
+      <ol id="titleRank" class="rank"></ol>
+    </div>
+  </div>
+
+  <div id="result" class="overlay hidden">
+    <div class="col">
+      <h1 id="resTitle">GAME OVER</h1>
+      <table id="resBreak"></table>
+      <div id="resTotal"></div>
+      <form id="nameForm">
+        <input id="nameInput" maxlength="8" placeholder="이름 (8자)" autocomplete="off">
+        <button class="big" type="submit">등록</button>
+      </form>
+      <button id="skipBtn" class="small">등록 안 하고 다시하기</button>
+    </div>
+    <div class="col rankcol hidden" id="rankPanel">
+      <h2>🏆 TOP 10</h2>
+      <ol id="resRank" class="rank"></ol>
+      <button id="retryBtn" class="big">다시 도전</button>
+    </div>
+  </div>
+</div>
+
+<div id="rotate"><div>📱↻<br>화면을 가로로 돌려주세요</div></div>
+
+<script src="config.js"></script>
+<script src="sprites.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
