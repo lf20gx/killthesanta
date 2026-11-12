@@ -119,7 +119,7 @@ const stage = $('stage');
 function resize() {
   const vw = innerWidth, vh = innerHeight, s = Math.min(vw / W, vh / H);
   stage.style.width = Math.floor(W * s) + 'px'; stage.style.height = Math.floor(H * s) + 'px';
-  stage.style.fontSize = Math.max(8, (H * s) / 22) + 'px';
+  stage.style.fontSize = Math.max(8, (H * s) / 23) + 'px';
 }
 addEventListener('resize', resize); resize();
 const isPortrait = () => innerHeight > innerWidth;
@@ -635,7 +635,7 @@ function saveLocal(entry) {
   return { ranking: top, rank: top.indexOf(entry) + 1, offline: true };
 }
 const SB_URL = (window.SUPABASE_URL || '').replace(/\/$/, ''), SB_KEY = window.SUPABASE_ANON_KEY || '';
-const sbHead = { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY };
+const sbHead = SB_KEY.startsWith('sb_') ? { apikey: SB_KEY } : { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY };
 async function sbTop() {
   const r = await fetch(SB_URL + '/rest/v1/scores?select=name,score,time,cleared&order=score.desc,time.asc&limit=10', { headers: sbHead, cache: 'no-store' });
   if (!r.ok) throw 0; return r.json();

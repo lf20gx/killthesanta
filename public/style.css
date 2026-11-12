@@ -67,3 +67,36 @@ button.big:active,button.small:active{filter:brightness(.85);transform:translate
 .pick{background:url(assets/ui/frame.png) center/100% 100% no-repeat;border:0;padding:.7em .9em;image-rendering:pixelated}
 .pick.sel{box-shadow:none;filter:drop-shadow(0 0 .5em #ffd84d)}
 .pick span{color:#fff;text-shadow:0 .08em 0 #000}
+
+/* ── 모바일 가로 화면용 확대/정리 ── */
+button,.btn,.pick span,.rank li b{white-space:nowrap}
+.overlay{padding:2%;gap:3%}
+.col{gap:.35em}
+h1{font-size:2.3em}
+button.big{font-size:1.45em;min-width:6.5em;padding:.45em 1.2em;line-height:1.1}
+button.small{font-size:.85em;min-width:11em;padding:.75em 1.6em;line-height:1.1}
+.sub{font-size:.8em;line-height:1.3;word-break:keep-all;max-width:20em}
+.help{font-size:.65em;line-height:1.3}
+.btn{width:6em;height:6em}
+.btn b{font-weight:400;font-size:1.3em;line-height:1;display:block;text-align:center;pointer-events:none;white-space:nowrap}
+.pad.right .btn b{font-size:1.15em}
+.pad.right .btn[data-k=shoot]{margin-top:-2.2em}
+.pad{bottom:5%}.pad.left{left:2%;gap:.5em}.pad.right{right:2%;gap:.8em}
+.picks{gap:.8em}
+.pick{padding:.8em 1em .6em;font-size:.8em;min-width:6em}
+.pick i{height:4.6em}
+.pick span{font-size:1em;max-width:7em;overflow:hidden;text-overflow:ellipsis}
+.rank{font-size:.75em}
+.rank li{padding:.1em .4em;min-width:0}
+.rankcol{padding:1.2em}
+.rankcol h2{font-size:1.05em;white-space:nowrap}
+#nameForm{flex-wrap:nowrap}
+#nameForm button.big{font-size:1.1em;min-width:4em;padding:.4em 1em}
+input{font-size:1.2em;width:7em}
+#resBreak{font-size:.85em}
+#resTotal{font-size:1.3em}
+button.big{padding:.4em 1.2em .6em}
+button.small{padding:.65em 1.6em .85em}
+#nameForm button.big{padding:.35em 1em .55em}
+.pick{padding:.8em 1.2em .9em}
+.pick span{font-size:.9em}
