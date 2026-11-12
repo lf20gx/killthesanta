@@ -38,6 +38,31 @@ function drawSpr(key, anim, t, x, bottom, flip) {
   return true;
 }
 
+const BAR = new Image(); let barOK = false; BAR.onload = () => { barOK = true; }; BAR.src = 'assets/ui/bar.png';
+
+/* ───────────── pixelfx sprite-sheet effects (scripts/fx.mjs import <id>) ───────────── */
+const FX = {};
+fetch('assets/fx/manifest.json').then((r) => r.json()).then((m) => {
+  for (const k in m) { const e = FX[k] = { ...m[k], img: new Image(), ok: false }; e.img.onload = () => { e.ok = true; e.cols = Math.max(1, Math.floor(e.img.width / e.frameSize[0])); }; e.img.src = 'assets/fx/' + k + '.png'; }
+}).catch(() => {});
+function spawnFx(name, x, y, o = {}) {
+  if (!G || !FX[name]) return;
+  G.fxs.push({ name, x, y, t: 0, flip: !!o.flip, scale: o.scale || 1 });
+}
+function updateFx(dt) {
+  for (const f of G.fxs) { f.t += dt; const e = FX[f.name]; if (e && f.t * e.fps >= e.frames) f.dead = true; }
+  G.fxs = G.fxs.filter((f) => !f.dead);
+}
+function drawFxs(cam) {
+  for (const f of G.fxs) {
+    const e = FX[f.name]; if (!e || !e.ok) continue;
+    const [w, h] = e.frameSize, i = Math.min(e.frames - 1, Math.floor(f.t * e.fps)), s = f.scale;
+    ctx.save(); ctx.translate(px(f.x - cam), px(f.y)); if (f.flip) ctx.scale(-1, 1);
+    ctx.drawImage(e.img, (i % e.cols) * w, Math.floor(i / e.cols) * h, w, h, -e.pivot[0] * s, -e.pivot[1] * s, w * s, h * s);
+    ctx.restore();
+  }
+}
+
 /* ───────────── audio (tiny synth) ───────────── */
 let AC = null;
 function audio() {
@@ -143,7 +168,7 @@ function newGame() {
     t: 0, time: 0, cam: 0, shake: 0, maxX: 0, kill: 0, bossDmg: 0,
     p: { x: 40, y: GY - 22, w: 12, h: 22, vx: 0, vy: 0, face: 1, hp: PLAYER_HP, onGround: false, coyote: 0, inv: 0, hurt: 0, cd: 0, anim: 0, shotT: 0 },
     enemies: LV.spawns.map(mkEnemy), items: LV.items.map((i) => ({ ...i })),
-    bullets: [], eb: [], parts: [], pops: [], sched: [], warns: [], boss: null, bossT: 0, dyingT: 0, endT: 0,
+    bullets: [], eb: [], fxs: [], parts: [], pops: [], sched: [], warns: [], boss: null, bossT: 0, dyingT: 0, endT: 0,
     snow: Array.from({ length: 50 }, () => ({ x: rand(0, W), y: rand(0, H), s: rand(10, 30), r: Math.random() < 0.3 ? 2 : 1 })),
   };
 }
@@ -352,11 +377,11 @@ function updateBullets(dt) {
     b.x += b.vx * dt; b.life -= dt;
     if (b.life <= 0 || solidAt(b.vx > 0 ? b.x + b.w : b.x, b.y + 2)) { b.dead = true; burst(b.x, b.y, 2, ['#fff'], 30); continue; }
     for (const e of G.enemies) if (!e.dead && ov(b, e)) {
-      b.dead = true; e.hp--; e.fl = 0.1; burst(b.x, b.y, 3, ['#fff', '#ffd84d'], 50);
+      b.dead = true; e.hp--; e.fl = 0.1; burst(b.x, b.y, 3, ['#fff', '#ffd84d'], 50); spawnFx('hit-spark', b.x + b.w / 2, b.y + 2, { flip: b.vx < 0, scale: 0.75 });
       if (e.hp <= 0) killEnemy(e); else sfx.bossHit();
       break;
     }
-    if (!b.dead && G.boss && ov(b, G.boss)) { b.dead = true; hitBoss(1); }
+    if (!b.dead && G.boss && ov(b, G.boss)) { b.dead = true; hitBoss(1); spawnFx('hit-spark', b.x + b.w / 2, b.y + 2, { flip: b.vx < 0, scale: 1 }); }
   }
   G.bullets = G.bullets.filter((b) => !b.dead);
   for (const e of G.eb) {
@@ -386,7 +411,7 @@ function update(dt) {
   G.shake = Math.max(0, G.shake - dt);
 
   if (mode === 'play' || mode === 'bossdead') {
-    updatePlayer(dt); updateEnemies(dt); updateBoss(dt); updateBullets(dt);
+    updatePlayer(dt); updateEnemies(dt); updateBoss(dt); updateBullets(dt); updateFx(dt);
     if (mode === 'bossdead') {
       G.endT += dt;
       if (G.endT > 2.6) { sfx.win(); showResult(true); }
@@ -552,10 +577,15 @@ function drawHUD() {
   const pw = 120, pxl = W - 6 - pw; rect(pxl, 20, pw, 3, '#223'); rect(pxl, 20, pw * clamp(G.maxX / BOSS_TRIGGER, 0, 1), 3, '#4df');
   ctx.textAlign = 'left'; ctx.fillStyle = '#f66'; ctx.fillText('🎅', pxl + pw - 4, 15);
   if (G.boss && G.boss.state !== 'intro') {
-    const bw = 200, bx = (W - bw) / 2, by = H - 16;
-    rect(bx - 2, by - 2, bw + 4, 10, '#000'); rect(bx, by, bw, 6, '#401018');
-    rect(bx, by, bw * G.boss.hp / BOSS_HP, 6, G.boss.hp <= BOSS_HP / 2 ? '#ff3030' : '#e8474f');
-    ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.fillText('EVIL SANTA', W / 2, by - 12);
+    const bw = 210, bh = 30, bx = (W - bw) / 2, by = H - bh - 2, ratio = G.boss.hp / BOSS_HP;
+    if (barOK) {
+      const ix = bx + bw * 0.12, iy = by + bh * 0.28, iw = bw * 0.85, ih = bh * 0.46;
+      rect(ix, iy, iw, ih, '#2a0a0a'); rect(ix, iy, iw * ratio, ih, G.boss.hp <= BOSS_HP / 2 ? '#ff3030' : '#e8472a'); rect(ix, iy, iw * ratio, 2, '#ffffff55');
+      ctx.imageSmoothingEnabled = true; ctx.drawImage(BAR, bx, by, bw, bh); ctx.imageSmoothingEnabled = false;
+    } else {
+      rect(bx - 2, by + 8, bw + 4, 10, '#000'); rect(bx, by + 10, bw, 6, '#401018'); rect(bx, by + 10, bw * ratio, 6, '#e8474f');
+    }
+    ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.fillText('EVIL SANTA', W / 2, by - 9);
   }
   if (G.boss && G.boss.state === 'intro') {
     ctx.textAlign = 'center';
@@ -580,6 +610,7 @@ function render() {
   for (const e of G.eb) drawEBullet(e, cam);
   for (const b of G.bullets) { rect(b.x - cam, b.y, b.w, b.h, SHOT_COLOR[CHAR][0]); rect(b.x - cam + 1, b.y + 1, b.w - 2, 2, SHOT_COLOR[CHAR][1]); }
   drawPlayer(cam);
+  drawFxs(cam);
   for (const q of G.parts) rect(q.x - cam, q.y, q.s, q.s, q.c);
   ctx.font = '8px "DotGothic16", monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
   for (const q of G.pops) { ctx.fillStyle = q.c; ctx.fillText(q.txt, px(q.x - cam), px(q.y)); }
@@ -692,5 +723,5 @@ function frame(now) {
 }
 requestAnimationFrame(frame);
 showTitle();
-window.__KTS = { get G() { return G; }, get mode() { return mode; }, startGame, key };
+window.__KTS = { spawnFx, get G() { return G; }, get mode() { return mode; }, startGame, key };
 })();

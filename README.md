@@ -27,3 +27,14 @@ npm start        # http://localhost:3000  (의존성 없음, Node 18+)
 
 ## 스프라이트 교체
 `public/sprites.js` 의 주석 예시를 풀고 이미지를 `public/assets/` 에 넣으세요. (프레임 크기/애니메이션 프레임 번호만 맞추면 됩니다.) 이미지가 없으면 내장 임시 도트 그래픽이 사용됩니다.
+
+## 이펙트 파이프라인 (pixelfx)
+`pixelfx`(v0.3.1, 커밋 고정: `scripts/pixelfx.lock.json`) → 렌더 → 스프라이트 시트(PNG+JSON) → `public/assets/fx/` → 게임의 `spawnFx(name, x, y)`.
+```bash
+node scripts/fx.mjs setup                  # 고정 커밋으로 vendor/pixelfx 받기 (gallery/Patch Pixel 폰트는 받지 않음)
+node scripts/fx.mjs list frost             # 검색
+node scripts/fx.mjs render ice/frost-nova  # 미리보기 contact.png
+node scripts/fx.mjs import impacts/hit-spark --as hit-spark
+node scripts/fx.mjs menu                   # 대화형 메뉴
+```
+Claude Code에서는 `.claude/skills/pixelfx` 스킬과 `/fx` 명령을 쓰세요. 라이선스/크레딧: `THIRD_PARTY_NOTICES.md`.

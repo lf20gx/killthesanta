@@ -1,0 +1,7 @@
+{
+  "repo": "https://github.com/patch-gg/pixelfx.git",
+  "commit": "5294518ce7c72e48b6100a744596e0acf57f2826",
+  "version": "0.3.1",
+  "license": "MIT",
+  "note": "Pinned. Update by changing `commit` here, running `node scripts/fx.mjs setup --force`, and re-importing effects. The gallery/ folder (Patch Pixel font, not MIT) is never fetched."
+}

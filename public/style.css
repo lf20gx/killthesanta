@@ -50,9 +50,20 @@ input{font-family:inherit;font-size:1.2em;width:8em;padding:.3em .5em;border-rad
 .pick{display:flex;flex-direction:column;align-items:center;gap:.2em;padding:.3em .6em;border:.15em solid #6b4a1e;border-radius:.4em;background:linear-gradient(#5a3a18,#3a2410);font-size:.7em;cursor:pointer;opacity:.6}
 .pick.sel{opacity:1;border-color:#ffd84d;box-shadow:0 0 .8em #ffd84d88}
 .pick i{display:block;height:4.2em;aspect-ratio:1/1;background-size:auto 100%;background-repeat:no-repeat;background-position:0 0}
-/* 골드/우드 UI */
+/* 골드/우드 UI (assets/ui) */
 .overlay{background:rgba(20,10,4,.82)}
-button.big{background:linear-gradient(#ffe45a,#f2b400);color:#3a2000;border:.15em solid #2a1400;box-shadow:0 .2em 0 #7a4a10;text-shadow:0 .06em 0 #fff8}
-button.small{background:linear-gradient(#f4ead0,#d9c79a);color:#3a2000;border:.1em solid #2a1400}
-.rank li.me{background:#ffd84d44}
-#rankPanel,.rankcol{background:linear-gradient(#6b4420,#4a2d12);border:.2em solid #e6b422;border-radius:.4em;padding:.5em;box-shadow:inset 0 0 0 .12em #2a1400}
+button{border:0;background:none}
+button.big{font-size:1.3em;padding:.45em 1.6em;color:#3a2000;background:url(assets/ui/btn_gold.png) center/100% 100% no-repeat;text-shadow:0 .06em 0 #fff8;box-shadow:none;image-rendering:pixelated}
+button.small{font-size:.7em;padding:.5em 1.2em;color:#3a2000;background:url(assets/ui/btn_cream.png) center/100% 100% no-repeat;image-rendering:pixelated}
+button.big:active,button.small:active{filter:brightness(.85);transform:translateY(.08em)}
+.rankcol{background:none;padding:1.7em;border:solid transparent;border-width:1.6em;border-image:url(assets/ui/frame.png) 40 fill/1.6em stretch;image-rendering:pixelated;box-shadow:none;gap:.3em;justify-content:flex-start}
+.rankcol h2{background:url(assets/ui/ribbon.png) center/100% 100% no-repeat;color:#3a2000;padding:.35em 1.5em;margin:-.6em auto .2em;image-rendering:pixelated}
+.rank li.me{background:#ffd84d55}
+.btn{border:0;border-radius:0;opacity:.9;background:url(assets/ui/sq_grey.png) center/100% 100% no-repeat;image-rendering:pixelated;text-shadow:0 .08em 0 #000;font-size:.9em}
+.btn.on{background-color:transparent;filter:brightness(1.5)}
+.pad.right .btn[data-k=jump]{background:url(assets/ui/sq_blue.png) center/100% 100% no-repeat}
+.pad.right .btn[data-k=shoot]{background:url(assets/ui/sq_red.png) center/100% 100% no-repeat;margin-top:-1.5em}
+.pad.left .btn{border-radius:0}
+.pick{background:url(assets/ui/frame.png) center/100% 100% no-repeat;border:0;padding:.7em .9em;image-rendering:pixelated}
+.pick.sel{box-shadow:none;filter:drop-shadow(0 0 .5em #ffd84d)}
+.pick span{color:#fff;text-shadow:0 .08em 0 #000}

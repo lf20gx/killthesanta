@@ -1,3 +1,4 @@
 node_modules/
 data/ranking.json
 data/*.tmp
+vendor/pixelfx/
