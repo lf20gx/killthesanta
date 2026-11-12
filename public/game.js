@@ -5,6 +5,8 @@ const W = 480, H = 270, T = 16, GY = 14 * T;
 const TILES = 330, BOSS_X = 300 * T, BOSS_TRIGGER = 302 * T, WORLD_W = TILES * T;
 const PAR_TIME = 300, TIME_BONUS_PER_SEC = 100, CLEAR_BONUS = 10000, PROGRESS_MAX = 5000;
 const BOSS_HP = 40, PLAYER_HP = 6;
+let CHAR = 'ice'; try { CHAR = localStorage.getItem('kts_char') || 'ice'; } catch (e) {}
+const SHOT_COLOR = { ice: ['#7ff', '#fff'], red: ['#ff4d6a', '#ffd0d8'] };
 
 const $ = (id) => document.getElementById(id);
 const canvas = $('game'), ctx = canvas.getContext('2d');
@@ -29,7 +31,7 @@ function drawSpr(key, anim, t, x, bottom, flip) {
   const fi = a.f[a.loop === false ? Math.min(step, n - 1) : step % n];
   const cols = Math.max(1, Math.floor(c.img.width / c.fw));
   const dw = c.dw || c.fw, dh = c.dh || c.fh;
-  ctx.save(); ctx.translate(Math.round(x), Math.round(bottom));
+  ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.translate(Math.round(x), Math.round(bottom));
   if (flip) ctx.scale(-1, 1);
   ctx.drawImage(c.img, (fi % cols) * c.fw, Math.floor(fi / cols) * c.fh, c.fw, c.fh, -dw / 2, -dh + (c.oy || 0), dw, dh);
   ctx.restore();
@@ -263,7 +265,7 @@ function updateEnemies(dt) {
 /* ───────────── boss (Evil Santa) ───────────── */
 function startBoss() {
   solids.push({ x: BOSS_X, y: -400, w: 16, h: GY + 400 }); // door closes behind
-  G.boss = { x: BOSS_X + 480 - 16 - 36 - 24, y: GY - 46, w: 36, h: 46, vx: 0, vy: 0, hp: BOSS_HP, face: -1, state: 'intro', t: 0, sub: 0, flash: 0, last: '', n: 0, nextT: 0, onGround: true };
+  G.boss = { x: BOSS_X + 480 - 16 - 40 - 24, y: GY - 54, w: 40, h: 54, vx: 0, vy: 0, hp: BOSS_HP, face: -1, state: 'intro', t: 0, sub: 0, flash: 0, last: '', n: 0, nextT: 0, onGround: true };
   G.bossT = 0; G.eb = []; sfx.warn();
 }
 function bossSet(s) { const b = G.boss; b.state = s; b.t = 0; b.sub = 0; b.n = 0; b.nextT = 0; }
@@ -520,7 +522,7 @@ function drawPlayer(cam) {
   if (p.inv > 0 && Math.floor(G.t * 25) % 2) return;
   const x = cx(p) - cam, b = p.y + p.h, face = p.face;
   const anim = p.hurt > 0 ? 'hurt' : !p.onGround ? 'jump' : p.shotT > 0 ? 'shoot' : Math.abs(p.vx) > 5 ? 'run' : 'idle';
-  if (drawSpr('player', anim, p.anim, x, b, face < 0)) return;
+  if (drawSpr('player_' + CHAR, anim, p.anim, x, b, face < 0)) return;
   ctx.save(); ctx.translate(px(x), b); ctx.scale(face, 1);
   const run = anim === 'run' ? Math.floor(p.anim * 10) % 2 : 0, air = anim === 'jump';
   rect(-5, -6 + (air ? -1 : 0), 4, 6 - run * 2, '#1d4ba0'); rect(1, -6, 4, 4 + run * 2, '#1d4ba0');
@@ -576,7 +578,7 @@ function render() {
   for (const e of G.enemies) if (e.x > cam - 30 && e.x < cam + W + 30) drawEnemy(e, cam);
   drawBoss(cam);
   for (const e of G.eb) drawEBullet(e, cam);
-  for (const b of G.bullets) { rect(b.x - cam, b.y, b.w, b.h, '#ffe066'); rect(b.x - cam + 1, b.y + 1, b.w - 2, 2, '#fff'); }
+  for (const b of G.bullets) { rect(b.x - cam, b.y, b.w, b.h, SHOT_COLOR[CHAR][0]); rect(b.x - cam + 1, b.y + 1, b.w - 2, 2, SHOT_COLOR[CHAR][1]); }
   drawPlayer(cam);
   for (const q of G.parts) rect(q.x - cam, q.y, q.s, q.s, q.c);
   ctx.font = '8px "DotGothic16", monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
@@ -664,6 +666,10 @@ $('nameForm').addEventListener('submit', async (e) => {
   renderRank($('resRank'), res.ranking, res.rank);
   $('nameForm').classList.add('hidden'); $('skipBtn').classList.add('hidden'); el.rankPanel.classList.remove('hidden');
   $('resTotal').textContent = 'TOTAL ' + score().toLocaleString() + (res.rank ? `  —  ${res.rank}위!` : '  (TOP10 밖)') + (res.offline ? ' [로컬]' : '');
+});
+document.querySelectorAll('.pick').forEach((b) => {
+  b.classList.toggle('sel', b.dataset.c === CHAR);
+  b.onclick = () => { CHAR = b.dataset.c; try { localStorage.setItem('kts_char', CHAR); } catch (e) {} document.querySelectorAll('.pick').forEach((x) => x.classList.toggle('sel', x === b)); };
 });
 $('startBtn').onclick = startGame;
 $('retryBtn').onclick = startGame;
